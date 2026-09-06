@@ -527,10 +527,10 @@ export const initialFamilyMembers: FamilyMember[] = [
 
 export const initialSettings: AppSettings = {
   arisanName: "Arisan Sedulur Akur",
-  bankName: "Bank Central Asia (BCA)",
+  bankName: "Bank Mandiri",
   accountNumber: "8830-1928-4411",
-  accountHolder: "Ibu Ratna Kusuma (Bendahara)",
-  whatsappContact: "0812-3400-0011",
+  accountHolder: "Ibu Rini (Bendahara)",
+  whatsappContact: "087840812463",
   monthlyAmount: 150000,
   arisanDescription:
     "Aplikasi resmi pengelolaan dana kas, iuran bulanan, santunan sosial, jadwal pertemuan, dan silaturahmi keluarga besar secara transparan dan akuntabel.",

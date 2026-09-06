@@ -317,13 +317,12 @@ export default function DashboardPage() {
                   <div className="space-y-1">
                     <div className="flex items-center gap-2">
                       <Badge
-                        className={`text-[10px] ${
-                          exp.category === "SAKIT"
+                        className={`text-[10px] ${exp.category === "SAKIT"
                             ? "bg-rose-50 text-rose-700 border-rose-200"
                             : exp.category === "HADIAH"
-                            ? "bg-amber-50 text-amber-700 border-amber-200"
-                            : "bg-blue-50 text-blue-700 border-blue-200"
-                        }`}
+                              ? "bg-amber-50 text-amber-700 border-amber-200"
+                              : "bg-blue-50 text-blue-700 border-blue-200"
+                          }`}
                       >
                         {exp.category}
                       </Badge>
@@ -402,20 +401,11 @@ export default function DashboardPage() {
             <CardContent className="space-y-3 pt-0 text-xs">
               <div className="flex items-center gap-3">
                 <div className="h-8 w-8 rounded-full bg-blue-100 text-blue-700 flex items-center justify-center font-bold text-xs">
-                  RK
+                  IR
                 </div>
                 <div>
-                  <p className="font-bold text-slate-900">Ibu Ratna Kusuma</p>
-                  <p className="text-slate-500 text-[11px]">Bendahara Arisan: 0812-3400-0011</p>
-                </div>
-              </div>
-              <div className="flex items-center gap-3">
-                <div className="h-8 w-8 rounded-full bg-slate-100 text-slate-700 flex items-center justify-center font-bold text-xs">
-                  AW
-                </div>
-                <div>
-                  <p className="font-bold text-slate-900">Pak Agus Wijaya</p>
-                  <p className="text-slate-500 text-[11px]">Sekretaris Arisan: 0812-3400-0012</p>
+                  <p className="font-bold text-slate-900">Ibu Rini</p>
+                  <p className="text-slate-500 text-[11px]">Bendahara Arisan: 087840812463</p>
                 </div>
               </div>
             </CardContent>

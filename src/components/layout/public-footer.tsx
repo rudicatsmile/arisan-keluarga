@@ -45,7 +45,7 @@ export function PublicFooter() {
               </div>
               <div className="flex items-center gap-2">
                 <Phone className="h-4 w-4 text-blue-600 shrink-0" />
-                <span>WhatsApp: 0812-3400-0011 (Bu Ratna)</span>
+                <span>WhatsApp: 087840812463 (Bu Rini)</span>
               </div>
             </div>
           </div>
