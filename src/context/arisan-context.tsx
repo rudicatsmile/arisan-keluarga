@@ -47,7 +47,7 @@ interface ArisanContextType {
   switchPersona: (userId: string) => void;
   logout: () => void;
   addMember: (user: Omit<User, "id" | "joinedAt">) => void;
-  updateMember: (user: User) => void;
+  updateMember: (user: User) => Promise<{ success: boolean; message: string }>;
   uploadPaymentProof: (periodId: string, proofUrl: string, note?: string) => void;
   verifyPayment: (paymentId: string, status: "PAID" | "UNPAID") => void;
   addSocialExpense: (expense: Omit<SocialExpense, "id" | "recordedByName">) => void;
@@ -221,14 +221,24 @@ export function ArisanProvider({ children }: { children: React.ReactNode }) {
     }).catch(console.warn);
   };
 
-  const updateMember = (updatedUser: User) => {
+  const updateMember = async (updatedUser: User): Promise<{ success: boolean; message: string }> => {
     setUsers((prev) => prev.map((u) => (u.id === updatedUser.id ? updatedUser : u)));
     if (currentUser?.id === updatedUser.id) {
       setCurrentUser(updatedUser);
     }
 
     // Call Server Action
-    updateMemberAction(updatedUser.id, updatedUser).catch(console.warn);
+    try {
+      const res = await updateMemberAction(updatedUser.id, updatedUser);
+      if (!res.success) {
+        await refreshData();
+        return res;
+      }
+      return res;
+    } catch (err: any) {
+      await refreshData();
+      return { success: false, message: err?.message || "Gagal memperbarui data." };
+    }
   };
 
   const uploadPaymentProof = (periodId: string, proofUrl: string, note?: string) => {

@@ -141,7 +141,7 @@ export default function KelolaAnggotaPage() {
     setIsModalOpen(true);
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!name.trim() || !phone.trim()) {
       error("Gagal", "Nama dan nomor WhatsApp wajib diisi.");
@@ -149,7 +149,7 @@ export default function KelolaAnggotaPage() {
     }
 
     if (editingUser) {
-      updateMember({
+      const res = await updateMember({
         ...editingUser,
         name,
         phone,
@@ -162,6 +162,12 @@ export default function KelolaAnggotaPage() {
         parentId: parentId === "none" ? null : parentId,
         photoUrl,
       });
+
+      if (res && !res.success) {
+        error("Gagal Menyimpan", res.message);
+        return;
+      }
+
       success("Berhasil Disimpan", `Data anggota ${name} telah diperbarui.`);
     } else {
       addMember({
@@ -183,12 +189,12 @@ export default function KelolaAnggotaPage() {
     setIsModalOpen(false);
   };
 
-  const handleToggleActive = (u: User) => {
+  const handleToggleActive = async (u: User) => {
     if (u.id === currentUser?.id) {
       error("Aksi Ditolak", "Anda tidak dapat menonaktifkan akun sendiri.");
       return;
     }
-    updateMember({
+    await updateMember({
       ...u,
       isActive: !u.isActive,
     });

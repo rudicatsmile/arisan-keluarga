@@ -72,13 +72,28 @@ export async function updateMemberAction(id: string, formData: Partial<z.infer<t
 
   if (db) {
     try {
+      // Validasi nomor WhatsApp unik jika diubah
+      if (formData.phone) {
+        const existingPhone = await db.query.users.findFirst({
+          where: eq(schema.users.phone, formData.phone),
+        });
+        if (existingPhone && existingPhone.id !== id) {
+          return {
+            success: false,
+            message: `Nomor WhatsApp ${formData.phone} sudah digunakan oleh anggota lain (${existingPhone.name}).`,
+          };
+        }
+      }
+
       await db
         .update(schema.users)
         .set({
           name: formData.name,
+          phone: formData.phone,
           role: formData.role,
           position: formData.position,
           gender: formData.gender,
+          birthDate: formData.birthDate ? new Date(formData.birthDate) : undefined,
           address: formData.address,
           occupation: formData.occupation,
           parentId: formData.parentId || null,
@@ -89,8 +104,12 @@ export async function updateMemberAction(id: string, formData: Partial<z.infer<t
       revalidatePath("/admin/anggota");
       revalidatePath("/anggota");
       return { success: true, message: "Data anggota berhasil diperbarui." };
-    } catch (error) {
-      return { success: false, message: "Gagal memperbarui data." };
+    } catch (error: any) {
+      console.error("DB updateMemberAction error:", error);
+      if (error?.code === "23505") {
+        return { success: false, message: "Nomor WhatsApp ini sudah digunakan oleh anggota lain." };
+      }
+      return { success: false, message: error?.message || "Gagal memperbarui data." };
     }
   }
 
