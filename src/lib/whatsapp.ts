@@ -14,7 +14,8 @@ export async function sendWhatsAppMessage(
   phone: string,
   message: string
 ): Promise<SendMessageResponse> {
-  const apiUrl = process.env.WABLAS_API_URL || "https://solo.wablas.com";
+  const rawUrl = process.env.WABLAS_API_URL || "https://solo.wablas.com";
+  const apiUrl = rawUrl.replace(/\/+$/, "");
   const token = process.env.WABLAS_TOKEN;
 
   let formattedPhone = phone.replace(/[^0-9]/g, "");
@@ -29,7 +30,7 @@ export async function sendWhatsAppMessage(
     );
     return {
       status: true,
-      message: "Pesan WhatsApp berhasil disimulasikan terkirim.",
+      message: "Pesan WhatsApp disimulasikan terkirim (Mode Dev).",
     };
   }
 
@@ -46,17 +47,27 @@ export async function sendWhatsAppMessage(
       }),
     });
 
-    const result = await response.json();
+    const result = await response.json().catch(() => null);
+
+    if (!response.ok) {
+      console.warn(`[Wablas API Rejected HTTP ${response.status}]`, result);
+      return {
+        status: false,
+        message: result?.message || `Wablas menolak pengiriman (HTTP ${response.status})`,
+        data: result,
+      };
+    }
+
     return {
-      status: response.ok,
-      message: result?.message || "Pesan WhatsApp terkirim.",
+      status: true,
+      message: result?.message || "Pesan WhatsApp berhasil terkirim.",
       data: result,
     };
-  } catch (error) {
-    console.error("[Wablas Error]", error);
+  } catch (error: any) {
+    console.error("[Wablas Connection Error]", error);
     return {
       status: false,
-      message: "Gagal terhubung ke gateway WhatsApp Wablas.",
+      message: error?.message || "Gagal terhubung ke gateway WhatsApp Wablas.",
     };
   }
 }

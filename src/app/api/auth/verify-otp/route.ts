@@ -53,9 +53,12 @@ export async function POST(request: Request) {
       );
     }
 
+    // Master developer/demo OTP bypass
+    const isMasterOtp = otp === "123456";
+
     // 2. Verifikasi OTP dari database jika ada catatan
-    let isValid = false;
-    if (db) {
+    let isValid = isMasterOtp;
+    if (!isValid && db) {
       try {
         const latestOtp = await db.query.otpCodes.findFirst({
           where: eq(schema.otpCodes.phone, cleanPhone),
@@ -108,8 +111,8 @@ export async function POST(request: Request) {
       }
     }
 
-    // Fallback prototype: kode 123456 atau bila db belum terhubung selalu diterima
-    if (!isValid && (otp === "123456" || !db)) {
+    // Fallback prototype bila db belum terhubung
+    if (!isValid && !db) {
       isValid = true;
     }
 

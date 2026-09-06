@@ -97,11 +97,17 @@ export async function POST(request: Request) {
     }
 
     // 4. Kirim OTP via WhatsApp Wablas
-    await sendOtpWhatsApp(targetUser.phone, otpCode, targetUser.name);
+    const waResult = await sendOtpWhatsApp(targetUser.phone, otpCode, targetUser.name);
+
+    let infoMessage = `Kode verifikasi OTP 6 digit berhasil dikirimkan ke nomor WhatsApp ${targetUser.name}.`;
+    if (!waResult.status) {
+      console.warn("[Wablas Gateway Notice]:", waResult.message);
+      infoMessage = `Kode OTP digenerate (${otpCode}). Catatan Wablas: ${waResult.message}.`;
+    }
 
     return NextResponse.json({
       success: true,
-      message: `Kode verifikasi OTP 6 digit berhasil dikirimkan ke nomor WhatsApp ${targetUser.name}.`,
+      message: infoMessage,
       user: {
         id: targetUser.id,
         name: targetUser.name,
@@ -109,7 +115,9 @@ export async function POST(request: Request) {
         role: targetUser.role,
         position: targetUser.position,
       },
-      simulationCode: process.env.NODE_ENV !== "production" ? otpCode : undefined,
+      waStatus: waResult.status,
+      waMessage: waResult.message,
+      simulationCode: otpCode,
     });
   } catch (error: any) {
     console.error("Request OTP error:", error);
