@@ -41,7 +41,7 @@ export function PublicFooter() {
             <div className="space-y-2 text-sm text-slate-600">
               <div className="flex items-start gap-2">
                 <MapPin className="h-4 w-4 text-blue-600 shrink-0 mt-0.5" />
-                <span>Jl. Melati Raya No. 12, Cipadung, Kota Bandung, Jawa Barat</span>
+                <span>Indonesia</span>
               </div>
               <div className="flex items-center gap-2">
                 <Phone className="h-4 w-4 text-blue-600 shrink-0" />

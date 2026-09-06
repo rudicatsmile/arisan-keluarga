@@ -45,7 +45,7 @@ export default function KelolaLokasiPage() {
   const handleOpenAddModal = () => {
     setTitle("Pertemuan Rutin & Kocokan Periode 13");
     setHostMemberId(users[0]?.id || "usr-01");
-    setAddress("Jl. Melati Raya No. 12, Kel. Cipadung, Bandung");
+    setAddress("Indonesia Raya");
     setLatitude(-6.9175);
     setLongitude(107.6191);
     setScheduledAt("2026-07-18T10:00");
@@ -237,7 +237,7 @@ export default function KelolaLokasiPage() {
                 Alamat Lengkap Rumah
               </label>
               <Textarea
-                placeholder="Contoh: Jl. Melati Raya No. 12, Kel. Cipadung, Cibiru, Bandung"
+                placeholder="Contoh: Jl. Melati Raya No. 12, Kel. Cipayung, Jakarta"
                 value={address}
                 onChange={(e) => setAddress(e.target.value)}
                 required
