@@ -7,7 +7,7 @@ import { useArisan } from "@/context/arisan-context";
 import { Button } from "@/components/ui/button";
 
 export function PublicNavbar() {
-  const { currentUser } = useArisan();
+  const { currentUser, settings } = useArisan();
 
   return (
     <header className="sticky top-0 z-40 w-full border-b border-slate-200/80 bg-white/85 backdrop-blur-md">
@@ -20,7 +20,7 @@ export function PublicNavbar() {
             <span className="text-lg font-bold tracking-tight text-slate-900 block leading-none">
               Arisan<span className="text-blue-600">Keluarga</span>
             </span>
-            <span className="text-[10px] text-slate-400 font-medium">Bani Sutrisno & Wiryodiharjo</span>
+            <span className="text-[10px] text-slate-400 font-medium">{settings?.arisanName || "Arisan Keluarga"}</span>
           </div>
         </Link>
 

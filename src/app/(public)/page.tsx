@@ -44,7 +44,7 @@ export default function LandingPage() {
             <div className="lg:col-span-7 space-y-6 text-center lg:text-left">
               <div className="inline-flex items-center gap-2 rounded-full border border-blue-200 bg-blue-100/60 px-3.5 py-1 text-xs font-semibold text-blue-800">
                 <Sparkles className="h-3.5 w-3.5 text-blue-600" />
-                <span>Tata Kelola Resmi Arisan Bani Sutrisno</span>
+                <span>Tata Kelola Resmi {settings?.arisanName || "Arisan Keluarga"}</span>
               </div>
 
               <h1 className="text-4xl sm:text-5xl lg:text-6xl font-extrabold tracking-tight text-slate-900 leading-[1.15]">

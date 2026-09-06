@@ -3,6 +3,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import confetti from "canvas-confetti";
 import { User, ArisanPeriod } from "@/data/mock-data";
+import { useArisan } from "@/context/arisan-context";
 import {
   playCanisterShakeSound,
   playPopSound,
@@ -38,6 +39,8 @@ export function LotteryCanister({
   currentUserRole,
   onWinnerSelected,
 }: LotteryCanisterProps) {
+  const { settings } = useArisan();
+  const arisanDisplayName = settings?.arisanName || "ARISAN KELUARGA";
   const [stage, setStage] = useState<"idle" | "shaking" | "popping" | "unrolling" | "revealed">("idle");
   const [selectedWinner, setSelectedWinner] = useState<User | null>(null);
   const [soundEnabled, setSoundEnabled] = useState(true);
@@ -287,8 +290,8 @@ export function LotteryCanister({
                   <span className="block text-[9px] uppercase tracking-widest font-black text-amber-200">
                     TABUNG LOGAM RESMI
                   </span>
-                  <span className="block text-xs md:text-sm font-black text-white tracking-wide mt-0.5 leading-tight">
-                    ARISAN BANI SUTRISNO
+                  <span className="block text-xs md:text-sm font-black text-white tracking-wide mt-0.5 leading-tight uppercase">
+                    {arisanDisplayName}
                   </span>
                   <span className="block text-[8px] text-amber-100 mt-1 font-semibold">
                     1 KELUARGA 1 HAK KEMENANGAN

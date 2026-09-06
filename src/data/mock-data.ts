@@ -526,12 +526,12 @@ export const initialFamilyMembers: FamilyMember[] = [
 ];
 
 export const initialSettings: AppSettings = {
-  arisanName: "Paguyuban Arisan Keluarga Besar Bani Sutrisno",
+  arisanName: "Arisan Sedulur Akur",
   bankName: "Bank Central Asia (BCA)",
   accountNumber: "8830-1928-4411",
   accountHolder: "Ibu Ratna Kusuma (Bendahara)",
   whatsappContact: "0812-3400-0011",
   monthlyAmount: 150000,
   arisanDescription:
-    "Aplikasi resmi pengelolaan dana kas, iuran bulanan, santunan sosial, jadwal pertemuan, dan silaturahmi keluarga besar Bani Sutrisno secara transparan dan akuntabel.",
+    "Aplikasi resmi pengelolaan dana kas, iuran bulanan, santunan sosial, jadwal pertemuan, dan silaturahmi keluarga besar secara transparan dan akuntabel.",
 };

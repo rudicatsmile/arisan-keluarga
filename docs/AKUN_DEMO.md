@@ -1,5 +1,5 @@
 # 📋 Dokumentasi Akun Pengurus & Anggota Demo
-## Aplikasi Web Arisan Keluarga Besar Bani Sutrisno
+## Platform Tata Kelola Arisan Keluarga Digital
 
 Dokumen ini berisi daftar lengkap akun demo yang telah di-*seed* ke dalam database **Neon PostgreSQL** beserta nomor WhatsApp, peran (*role*), hak akses (*privileges*), panduan login OTP WhatsApp, serta konfigurasi gateway **Wablas**.
 

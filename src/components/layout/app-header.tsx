@@ -10,7 +10,7 @@ interface AppHeaderProps {
 }
 
 export function AppHeader({ onOpenSidebar }: AppHeaderProps) {
-  const { currentUser, payments, isSyncing, isDbConnected, refreshData } = useArisan();
+  const { currentUser, payments, isSyncing, isDbConnected, refreshData, settings } = useArisan();
 
   if (!currentUser) return null;
 
@@ -31,7 +31,7 @@ export function AppHeader({ onOpenSidebar }: AppHeaderProps) {
         <div className="hidden sm:flex items-center gap-2 text-xs text-slate-500">
           <div className="flex items-center gap-1 font-medium text-blue-700 bg-blue-50 px-2 py-0.5 rounded-md border border-blue-200">
             <Heart className="h-3.5 w-3.5 fill-blue-600 text-blue-600" />
-            <span>Keluarga Bani Sutrisno</span>
+            <span>{settings?.arisanName || "Keluarga Arisan"}</span>
           </div>
           <span className="text-slate-300">•</span>
           <span>Tahun Buku 2026</span>

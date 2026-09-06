@@ -7,7 +7,7 @@ export const metadata: Metadata = {
     template: "%s | ArisanKeluarga",
     default: "Dashboard | ArisanKeluarga",
   },
-  description: "Area internal pengelolaan kas, iuran bulanan, dan silsilah keluarga besar Bani Sutrisno.",
+  description: "Area internal pengelolaan kas, iuran bulanan, dan silsilah keluarga besar.",
   robots: {
     index: false,
     follow: false,

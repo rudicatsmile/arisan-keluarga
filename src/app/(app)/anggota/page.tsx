@@ -24,7 +24,7 @@ import { Avatar } from "@/components/ui/avatar";
 import { User } from "@/data/mock-data";
 
 export default function AnggotaPage() {
-  const { users } = useArisan();
+  const { users, settings } = useArisan();
   const [searchQuery, setSearchQuery] = useState("");
   const [viewMode, setViewMode] = useState<"tree" | "grid">("tree");
 
@@ -114,7 +114,7 @@ export default function AnggotaPage() {
             Pohon Anggota & Silsilah Paguyuban
           </h1>
           <p className="text-xs sm:text-sm text-slate-500 mt-1">
-            Susunan keanggotaan, struktur kepengurusan, dan relasi keluarga besar Bani Sutrisno.
+            Susunan keanggotaan, struktur kepengurusan, dan relasi keluarga besar {settings?.arisanName || "Keluarga"}.
           </p>
         </div>
 

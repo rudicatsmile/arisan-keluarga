@@ -32,7 +32,7 @@ interface AppSidebarProps {
 
 export function AppSidebar({ isOpen, onClose }: AppSidebarProps) {
   const pathname = usePathname();
-  const { currentUser, logout } = useArisan();
+  const { currentUser, logout, settings } = useArisan();
 
   if (!currentUser) return null;
 
@@ -86,7 +86,7 @@ export function AppSidebar({ isOpen, onClose }: AppSidebarProps) {
               <span className="text-base font-bold tracking-tight text-slate-900 block leading-none">
                 Arisan<span className="text-blue-600">Keluarga</span>
               </span>
-              <span className="text-[10px] text-slate-400 font-medium">Bani Sutrisno</span>
+              <span className="text-[10px] text-slate-400 font-medium">{settings?.arisanName || "Arisan Keluarga"}</span>
             </div>
           </Link>
           <button

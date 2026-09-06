@@ -24,7 +24,7 @@ import { FamilyMember, Relationship } from "@/data/mock-data";
 import { formatDate } from "@/lib/utils";
 
 export default function KeluargaBahagiaPage() {
-  const { currentUser, users, familyMembers, addFamilyMember, updateFamilyMember, deleteFamilyMember } =
+  const { currentUser, users, familyMembers, addFamilyMember, updateFamilyMember, deleteFamilyMember, settings } =
     useArisan();
   const { success, error } = useToast();
 
@@ -126,7 +126,7 @@ export default function KeluargaBahagiaPage() {
             Mengenal Seluruh Pasangan & Buah Hati
           </h1>
           <p className="text-rose-100 text-xs sm:text-sm leading-relaxed">
-            Menghubungkan generasi sepuh dan generasi muda Bani Sutrisno agar silaturahmi tetap akrab dan saling mendoakan setiap saat.
+            Menghubungkan generasi sepuh dan generasi muda {settings?.arisanName || "Keluarga"} agar silaturahmi tetap akrab dan saling mendoakan setiap saat.
           </p>
         </div>
 

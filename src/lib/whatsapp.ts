@@ -4,17 +4,41 @@
  * Sesuai PRD Bab 6.A, Bab 6.C, Bab 8, & Bab 11 Task 3.1
  */
 
+import { db } from "@/db";
+import { appSettings } from "@/db/schema";
+import { eq } from "drizzle-orm";
+
 interface SendMessageResponse {
   status: boolean;
   message: string;
   data?: any;
 }
 
+export async function getArisanNameFromDb(): Promise<string> {
+  try {
+    if (db) {
+      const row = await db.query.appSettings.findFirst({
+        where: eq(appSettings.key, "arisanName"),
+      });
+      if (row?.value) {
+        try {
+          return JSON.parse(row.value);
+        } catch {
+          return row.value;
+        }
+      }
+    }
+  } catch (err) {
+    // fallback
+  }
+  return "Arisan Keluarga";
+}
+
 export async function sendWhatsAppMessage(
   phone: string,
   message: string
 ): Promise<SendMessageResponse> {
-  const rawUrl = process.env.WABLAS_API_URL || "https://solo.wablas.com";
+  const rawUrl = process.env.WABLAS_API_URL || "https://jkt.wablas.com";
   const apiUrl = rawUrl.replace(/\/+$/, "");
   const token = process.env.WABLAS_TOKEN;
 
@@ -80,6 +104,7 @@ export async function sendOtpWhatsApp(
   otpCode: string,
   memberName: string
 ): Promise<SendMessageResponse> {
+  const arisanName = await getArisanNameFromDb();
   const message = `Halo ${memberName},
 
 Berikut adalah kode OTP verifikasi masuk aplikasi *ArisanKeluarga* Anda:
@@ -89,7 +114,7 @@ Berikut adalah kode OTP verifikasi masuk aplikasi *ArisanKeluarga* Anda:
 Kode ini berlaku selama 5 menit. Jangan pernah membagikan kode rahasia ini kepada siapa pun, termasuk pengurus arisan.
 
 Terima kasih,
-_Pengurus Arisan Keluarga Besar Bani Sutrisno_`;
+_Pengurus ${arisanName}_`;
 
   return sendWhatsAppMessage(phone, message);
 }
@@ -134,6 +159,7 @@ export async function sendPaymentVerificationWhatsApp(
   periodName: string,
   isApproved: boolean
 ): Promise<SendMessageResponse> {
+  const arisanName = await getArisanNameFromDb();
   const statusText = isApproved
     ? "telah *DIVERIFIKASI LUNAS* oleh Bendahara. Terima kasih atas partisipasi tepat waktu Anda!"
     : "memerlukan pengecekan ulang karena bukti transfer kurang jelas atau nominal tidak cocok. Mohon periksa dan unggah kembali bukti valid.";
@@ -146,7 +172,7 @@ Rincian dapat Anda pantau di:
 ${process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000"}/iuran-saya
 
 Salam hangat,
-_Bendahara Arisan Keluarga Bani Sutrisno_`;
+_Bendahara ${arisanName}_`;
 
   return sendWhatsAppMessage(phone, message);
 }
@@ -194,6 +220,7 @@ export async function broadcastMeetingNotification(
   dateTime: string,
   address: string
 ): Promise<SendMessageResponse> {
+  const arisanName = await getArisanNameFromDb();
   const message = `Halo ${memberName},
 
 Jadwal pertemuan arisan keluarga telah ditetapkan:
@@ -206,7 +233,7 @@ Petunjuk arah peta dan koordinat lokasi dapat dibuka di:
 ${process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000"}/lokasi-arisan
 
 Sampai jumpa dalam kehangatan silaturahmi!
-_Keluarga Besar Bani Sutrisno_`;
+_Keluarga Besar ${arisanName}_`;
 
   return sendWhatsAppMessage(phone, message);
 }
@@ -223,6 +250,7 @@ export async function sendWinnerAnnouncementWhatsApp(
   netPrize: number,
   cycleNumber: number = 1
 ): Promise<SendMessageResponse> {
+  const arisanName = await getArisanNameFromDb();
   const formatRp = (num: number) =>
     new Intl.NumberFormat("id-ID", {
       style: "currency",
@@ -238,7 +266,7 @@ export async function sendWinnerAnnouncementWhatsApp(
 
   const message = `🎉 *SELAMAT KEPADA PEMENANG ARISAN!* 🎉
 
-Alhamdulillah, hasil kocokan undian resmi *Arisan Keluarga Besar Bani Sutrisno* telah selesai dilaksanakan:
+Alhamdulillah, hasil kocokan undian resmi *${arisanName}* telah selesai dilaksanakan:
 
 • Putaran / Siklus: *Putaran Ke-${cycleNumber}*
 • Periode: *${periodName}*
@@ -253,7 +281,7 @@ ${process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000"}/kocokan
 
 Selamat kepada *${winnerName}* dan barakallah untuk seluruh keluarga besar! 🎊✨
 
-_Pengurus Arisan Keluarga Bani Sutrisno_`;
+_Pengurus ${arisanName}_`;
 
   return sendWhatsAppMessage(phone, message);
 }
