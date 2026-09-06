@@ -10,7 +10,6 @@ import {
   ArrowRight,
   ShieldCheck,
   RotateCw,
-  Sparkles,
   ArrowLeft,
   CheckCircle2,
   AlertCircle,
@@ -202,10 +201,6 @@ export default function LoginPage() {
     }
   };
 
-  const handleQuickSelect = (user: (typeof users)[0]) => {
-    setPhoneNumber(user.phone);
-    setErrorMessage(null);
-  };
 
   return (
     <div className="min-h-[85vh] flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8 bg-gradient-to-b from-blue-50/50 via-white to-slate-50">
@@ -288,33 +283,6 @@ export default function LoginPage() {
                     </>
                   )}
                 </Button>
-
-                {/* Quick Persona Demo Fill */}
-                <div className="pt-4 border-t border-slate-100">
-                  <div className="flex items-center justify-between mb-2">
-                    <span className="text-[11px] font-semibold text-slate-400 uppercase tracking-wider">
-                      Uji Coba Cepat (Akun Demo)
-                    </span>
-                    <Sparkles className="h-3 w-3 text-amber-500" />
-                  </div>
-                  <div className="grid grid-cols-2 gap-2">
-                    {users.slice(0, 4).map((u) => (
-                      <button
-                        key={u.id}
-                        type="button"
-                        onClick={() => handleQuickSelect(u)}
-                        className={`text-left p-2 rounded-lg border text-xs transition cursor-pointer ${
-                          phoneNumber === u.phone
-                            ? "border-blue-500 bg-blue-50/70 text-blue-900 font-semibold"
-                            : "border-slate-200 hover:bg-slate-50 text-slate-700"
-                        }`}
-                      >
-                        <p className="font-bold truncate text-[11px]">{u.name}</p>
-                        <p className="text-[10px] text-slate-500 truncate">{u.position} • {u.role}</p>
-                      </button>
-                    ))}
-                  </div>
-                </div>
               </form>
             ) : (
               <form onSubmit={handleVerifyOtp} className="space-y-5">
