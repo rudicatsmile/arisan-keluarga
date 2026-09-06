@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useRef } from "react";
 import Link from "next/link";
 import {
   UserPlus,
@@ -14,6 +14,9 @@ import {
   CheckCircle2,
   XCircle,
   MoreHorizontal,
+  Camera,
+  Upload,
+  RotateCw,
 } from "lucide-react";
 import { useArisan } from "@/context/arisan-context";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
@@ -49,6 +52,61 @@ export default function KelolaAnggotaPage() {
   const [photoUrl, setPhotoUrl] = useState(
     "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=300&auto=format&fit=crop&q=80"
   );
+  const [isUploading, setIsUploading] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    if (!["image/jpeg", "image/png", "image/webp"].includes(file.type)) {
+      error("Format Tidak Didukung", "Harap gunakan file gambar .jpg, .png, atau .webp.");
+      return;
+    }
+
+    if (file.size > 2 * 1024 * 1024) {
+      error("Ukuran Terlalu Besar", "Ukuran gambar maksimal adalah 2MB.");
+      return;
+    }
+
+    // Tampilkan preview instan lokal
+    const localPreview = URL.createObjectURL(file);
+    setPhotoUrl(localPreview);
+
+    setIsUploading(true);
+    try {
+      const formData = new FormData();
+      formData.append("file", file);
+      formData.append("folder", "avatars");
+
+      const res = await fetch("/api/upload", {
+        method: "POST",
+        body: formData,
+      });
+
+      const data = await res.json();
+      if (res.ok && data.success && data.url) {
+        setPhotoUrl(data.url);
+        success("Foto Diunggah", "Foto profil berhasil diunggah ke storage.");
+      } else {
+        error("Upload Gagal", data.message || "Gagal mengunggah foto profil.");
+      }
+    } catch (err: any) {
+      console.error("Upload error:", err);
+      error("Kesalahan", "Terjadi gangguan koneksi saat mengunggah foto.");
+    } finally {
+      setIsUploading(false);
+      if (fileInputRef.current) fileInputRef.current.value = "";
+    }
+  };
+
+  const handleResetPhoto = () => {
+    const defaultUrl =
+      gender === "Perempuan"
+        ? "https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=300&auto=format&fit=crop&q=80"
+        : "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=300&auto=format&fit=crop&q=80";
+    setPhotoUrl(defaultUrl);
+  };
 
   const isSuperAdmin = currentUser?.role === "SUPER_ADMIN";
   const isReviewer = currentUser?.role === "REVIEWER";
@@ -414,13 +472,70 @@ export default function KelolaAnggotaPage() {
               </div>
             </div>
 
+            {/* Upload Foto Profil */}
+            <div className="p-3.5 rounded-xl border border-slate-200 bg-slate-50/70">
+              <label className="text-xs font-semibold text-slate-700 block mb-2">
+                Foto Profil
+              </label>
+              <div className="flex items-center gap-4">
+                <div className="relative shrink-0">
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img
+                    src={photoUrl}
+                    alt="Pratinjau Foto Profil"
+                    className="h-16 w-16 rounded-full object-cover border-2 border-blue-400 shadow-sm bg-white"
+                  />
+                  {isUploading && (
+                    <div className="absolute inset-0 rounded-full bg-slate-900/60 flex items-center justify-center text-white">
+                      <RotateCw className="h-5 w-5 animate-spin text-blue-300" />
+                    </div>
+                  )}
+                </div>
+
+                <div className="flex-1 min-w-0 space-y-1.5">
+                  <div className="flex items-center gap-2">
+                    <input
+                      ref={fileInputRef}
+                      type="file"
+                      accept="image/jpeg,image/png,image/webp"
+                      onChange={handleImageUpload}
+                      className="hidden"
+                    />
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      onClick={() => fileInputRef.current?.click()}
+                      disabled={isUploading}
+                      className="text-xs h-8 gap-1.5 font-semibold bg-white cursor-pointer"
+                    >
+                      <Camera className="h-3.5 w-3.5 text-blue-600" />
+                      <span>{isUploading ? "Mengunggah..." : "Pilih File Gambar"}</span>
+                    </Button>
+
+                    <button
+                      type="button"
+                      onClick={handleResetPhoto}
+                      disabled={isUploading}
+                      className="text-[11px] text-slate-500 hover:text-rose-600 font-medium cursor-pointer transition"
+                    >
+                      Gunakan Default
+                    </button>
+                  </div>
+                  <p className="text-[11px] text-slate-500">
+                    Mendukung berkas JPG, PNG, atau WebP (Maksimal 2MB).
+                  </p>
+                </div>
+              </div>
+            </div>
+
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <div>
                 <label className="text-xs font-semibold text-slate-700 block mb-1">
                   Pekerjaan / Profesi
                 </label>
                 <Input
-                  placeholder="Contoh: Guru / Wiraswasta"
+                  placeholder="Contoh: Guru / Wiraswasta / Akuntan"
                   value={occupation}
                   onChange={(e) => setOccupation(e.target.value)}
                 />
@@ -428,24 +543,14 @@ export default function KelolaAnggotaPage() {
 
               <div>
                 <label className="text-xs font-semibold text-slate-700 block mb-1">
-                  URL Foto Profil
+                  Alamat Lengkap
                 </label>
                 <Input
-                  value={photoUrl}
-                  onChange={(e) => setPhotoUrl(e.target.value)}
+                  placeholder="Contoh: Jl. Melati No. 12, Bandung"
+                  value={address}
+                  onChange={(e) => setAddress(e.target.value)}
                 />
               </div>
-            </div>
-
-            <div>
-              <label className="text-xs font-semibold text-slate-700 block mb-1">
-                Alamat Lengkap
-              </label>
-              <Input
-                placeholder="Contoh: Jl. Melati No. 12, Bandung"
-                value={address}
-                onChange={(e) => setAddress(e.target.value)}
-              />
             </div>
 
             <DialogFooter>
