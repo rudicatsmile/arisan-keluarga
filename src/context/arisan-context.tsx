@@ -25,6 +25,7 @@ import { createMeetingAction, updateMeetingStatusAction } from "@/actions/meetin
 import { createFamilyMemberAction, updateFamilyMemberAction, deleteFamilyMemberAction } from "@/actions/family";
 import { updateSettingsAction } from "@/actions/settings";
 import { confirmWinnerAction, resetCycleAction } from "@/actions/draw";
+import { fetchLiveAppDataAction } from "@/actions/app-data";
 
 interface ArisanContextType {
   currentUser: User | null;
@@ -37,6 +38,9 @@ interface ArisanContextType {
   settings: AppSettings;
   activePeriod: ArisanPeriod;
   isLoaded: boolean;
+  isSyncing: boolean;
+  isDbConnected: boolean;
+  refreshData: () => Promise<void>;
   // Actions
   loginWithPhone: (phone: string) => boolean;
   setCurrentUser: (user: User | null) => void;
@@ -70,17 +74,12 @@ const ArisanContext = createContext<ArisanContextType | undefined>(undefined);
 
 const STORAGE_KEYS = {
   USER_ID: "arisankeluarga_user_id",
-  USERS: "arisankeluarga_users_v1",
-  PERIODS: "arisankeluarga_periods_v1",
-  PAYMENTS: "arisankeluarga_payments_v1",
-  EXPENSES: "arisankeluarga_expenses_v1",
-  MEETINGS: "arisankeluarga_meetings_v1",
-  FAMILY: "arisankeluarga_family_v1",
-  SETTINGS: "arisankeluarga_settings_v1",
 };
 
 export function ArisanProvider({ children }: { children: React.ReactNode }) {
   const [isLoaded, setIsLoaded] = useState(false);
+  const [isSyncing, setIsSyncing] = useState(false);
+  const [isDbConnected, setIsDbConnected] = useState(false);
   const [users, setUsers] = useState<User[]>(initialUsers);
   const [currentUser, setCurrentUser] = useState<User | null>(initialUsers[0]);
   const [periods, setPeriods] = useState<ArisanPeriod[]>(initialPeriods);
@@ -90,60 +89,68 @@ export function ArisanProvider({ children }: { children: React.ReactNode }) {
   const [familyMembers, setFamilyMembers] = useState<FamilyMember[]>(initialFamilyMembers);
   const [settings, setSettings] = useState<AppSettings>(initialSettings);
 
-  // Load from localStorage on mount
-  useEffect(() => {
+  // Ambil data LIVE langsung dari database Neon PostgreSQL setiap kali aplikasi dibuka
+  const refreshData = async () => {
+    setIsSyncing(true);
     try {
-      const savedUsers = localStorage.getItem(STORAGE_KEYS.USERS);
-      const savedPeriods = localStorage.getItem(STORAGE_KEYS.PERIODS);
-      const savedPayments = localStorage.getItem(STORAGE_KEYS.PAYMENTS);
-      const savedExpenses = localStorage.getItem(STORAGE_KEYS.EXPENSES);
-      const savedMeetings = localStorage.getItem(STORAGE_KEYS.MEETINGS);
-      const savedFamily = localStorage.getItem(STORAGE_KEYS.FAMILY);
-      const savedSettings = localStorage.getItem(STORAGE_KEYS.SETTINGS);
-      const savedUserId = localStorage.getItem(STORAGE_KEYS.USER_ID);
+      const res = await fetchLiveAppDataAction();
+      if (res.success && res.data) {
+        setIsDbConnected(true);
+        setUsers(res.data.users);
+        setPeriods(res.data.periods);
+        setPayments(res.data.payments);
+        setSocialExpenses(res.data.socialExpenses);
+        setMeetings(res.data.meetings);
+        setFamilyMembers(res.data.familyMembers);
+        setSettings(res.data.settings);
 
-      const loadedUsers = savedUsers ? JSON.parse(savedUsers) : initialUsers;
-      if (savedUsers) setUsers(loadedUsers);
-      if (savedPeriods) setPeriods(JSON.parse(savedPeriods));
-      if (savedPayments) setPayments(JSON.parse(savedPayments));
-      if (savedExpenses) setSocialExpenses(JSON.parse(savedExpenses));
-      if (savedMeetings) setMeetings(JSON.parse(savedMeetings));
-      if (savedFamily) setFamilyMembers(JSON.parse(savedFamily));
-      if (savedSettings) setSettings(JSON.parse(savedSettings));
+        // Pertahankan atau perbarui pengguna aktif dengan data terbaru dari Neon
+        const savedUserId =
+          typeof window !== "undefined" ? localStorage.getItem(STORAGE_KEYS.USER_ID) : null;
 
-      if (savedUserId) {
-        const found = loadedUsers.find((u: User) => u.id === savedUserId);
-        if (found) setCurrentUser(found);
+        if (savedUserId) {
+          const found = res.data.users.find(
+            (u) => u.id === savedUserId || u.phone === savedUserId
+          );
+          if (found) {
+            setCurrentUser(found);
+          } else {
+            setCurrentUser(res.data.users[0] || null);
+          }
+        } else {
+          setCurrentUser((prev) => {
+            if (!prev) return res.data!.users[0] || null;
+            const match = res.data!.users.find(
+              (u) => u.id === prev.id || u.phone === prev.phone
+            );
+            return match || res.data!.users[0] || null;
+          });
+        }
       } else {
-        setCurrentUser(loadedUsers[0] || null);
+        setIsDbConnected(false);
+        if (!currentUser) setCurrentUser(initialUsers[0]);
       }
     } catch (e) {
-      console.error("Failed to load local storage", e);
+      console.warn("Gagal mengambil data live Neon, menggunakan data fallback:", e);
+      if (!currentUser) setCurrentUser(initialUsers[0]);
     } finally {
+      setIsSyncing(false);
       setIsLoaded(true);
     }
+  };
+
+  // Muat data langsung dari Neon PostgreSQL saat aplikasi dimuat pertama kali
+  useEffect(() => {
+    refreshData();
   }, []);
 
-  // Save changes to localStorage
+  // Simpan ID user aktif ke session lokal
   useEffect(() => {
-    if (!isLoaded) return;
+    if (!currentUser) return;
     try {
-      localStorage.setItem(STORAGE_KEYS.USERS, JSON.stringify(users));
-      localStorage.setItem(STORAGE_KEYS.PERIODS, JSON.stringify(periods));
-      localStorage.setItem(STORAGE_KEYS.PAYMENTS, JSON.stringify(payments));
-      localStorage.setItem(STORAGE_KEYS.EXPENSES, JSON.stringify(socialExpenses));
-      localStorage.setItem(STORAGE_KEYS.MEETINGS, JSON.stringify(meetings));
-      localStorage.setItem(STORAGE_KEYS.FAMILY, JSON.stringify(familyMembers));
-      localStorage.setItem(STORAGE_KEYS.SETTINGS, JSON.stringify(settings));
-      if (currentUser) {
-        localStorage.setItem(STORAGE_KEYS.USER_ID, currentUser.id);
-      } else {
-        localStorage.removeItem(STORAGE_KEYS.USER_ID);
-      }
-    } catch (e) {
-      console.error("Failed to save local storage", e);
-    }
-  }, [users, periods, payments, socialExpenses, meetings, familyMembers, settings, currentUser, isLoaded]);
+      localStorage.setItem(STORAGE_KEYS.USER_ID, currentUser.id);
+    } catch {}
+  }, [currentUser]);
 
   const activePeriod = periods.find((p) => p.status === "OPEN") || periods[0];
 
@@ -520,6 +527,9 @@ export function ArisanProvider({ children }: { children: React.ReactNode }) {
         createPeriod,
         drawWinner,
         resetCycle,
+        isSyncing,
+        isDbConnected,
+        refreshData,
       }}
     >
       {children}

@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import { Menu, Bell, ShieldCheck, Heart } from "lucide-react";
+import { Menu, Bell, ShieldCheck, Heart, RefreshCw, Database } from "lucide-react";
 import { PersonaSwitcher } from "@/components/layout/persona-switcher";
 import { useArisan } from "@/context/arisan-context";
 
@@ -10,7 +10,7 @@ interface AppHeaderProps {
 }
 
 export function AppHeader({ onOpenSidebar }: AppHeaderProps) {
-  const { currentUser, payments } = useArisan();
+  const { currentUser, payments, isSyncing, isDbConnected, refreshData } = useArisan();
 
   if (!currentUser) return null;
 
@@ -39,6 +39,25 @@ export function AppHeader({ onOpenSidebar }: AppHeaderProps) {
       </div>
 
       <div className="flex items-center gap-3">
+        {/* Neon Live Sync Button */}
+        <button
+          type="button"
+          onClick={() => refreshData()}
+          disabled={isSyncing}
+          title={isDbConnected ? "Klik untuk memuat ulang data terbaru langsung dari Neon PostgreSQL" : "Database lokal"}
+          className={`hidden sm:inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-semibold border transition cursor-pointer ${
+            isDbConnected
+              ? "bg-emerald-50 hover:bg-emerald-100 text-emerald-800 border-emerald-200"
+              : "bg-slate-50 text-slate-600 border-slate-200"
+          }`}
+        >
+          <RefreshCw className={`h-3 w-3 ${isSyncing ? "animate-spin text-blue-600" : isDbConnected ? "text-emerald-600" : "text-slate-400"}`} />
+          <span>{isSyncing ? "Menyinkronkan..." : isDbConnected ? "Neon DB Live" : "Mode Offline"}</span>
+          {isDbConnected && !isSyncing && (
+            <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse" />
+          )}
+        </button>
+
         {/* Notification indicator for Admin / Reviewer */}
         {(currentUser.role === "SUPER_ADMIN" || currentUser.role === "ADMINISTRATOR") && pendingCount > 0 && (
           <div className="hidden sm:flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-amber-50 border border-amber-200 text-amber-800 text-xs font-medium">
